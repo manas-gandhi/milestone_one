@@ -11,6 +11,8 @@ wheels/
 .venv
 README.md
 # expense_tracker/settings.py
-requirements.txt
-uv.lock
 pyproject.toml
+requirements2.txt
+
+#Environment
+.env

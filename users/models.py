@@ -1,8 +1,11 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 import uuid
 
 class UserManager(BaseUserManager):
+    """
+    Custom manager for User creation.
+    """
     def create_user(self, username, email, password=None, **extra_fields):
         """
         Creates and returns a regular user with an email and password.
@@ -25,7 +28,11 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(username, email, password, **extra_fields)
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
+    """
+    Custom user model with 'email' field for the purpose of sign-in.
+    """
+
     GENDERS = [
         ('M', 'Male'),
         ('F', 'Female'),
@@ -38,12 +45,12 @@ class User(AbstractBaseUser):
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=255)
-    mobile_no = models.CharField(max_length=50)
-    date_of_birth = models.DateField()
+    mobile_no = models.CharField(max_length=50, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
     gender = models.CharField(
         max_length=1,
         choices=GENDERS,
-        default=3,
+        default='N',
     )
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False) 
@@ -54,7 +61,7 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'password']
     
     def __str__(self):
         return self.username

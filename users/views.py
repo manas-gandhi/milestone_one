@@ -1,4 +1,3 @@
-# from django.shortcuts import render
 from .serializers import UserSerializer
 from .models import User
 from rest_framework import viewsets
@@ -7,31 +6,28 @@ from rest_framework.response import Response
 from rest_framework.exceptions import *
 from rest_framework.permissions import *
 from django.contrib.auth import authenticate
-from rest_framework.views import csrf_exempt
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # Create your views here.
 class UserViewSet(viewsets.ViewSet):
+    # ViewSet to handle user-related crud operations
+
+    authentication_classes = [JWTAuthentication]
+
     def get_permissions(self):
         """
-        Assign which permissions are required for which action.
+        Check permissions dynamically based on the action.
         """
-        permissions = []
 
         if self.action == 'create':
-            permissions = []
-        elif self.action == 'list':
-            permissions = [IsAuthenticated]
-        elif self.action == 'retrieve':
-            permissions = [IsAuthenticated]
-        elif self.action in ['update', 'partial_update']:
-            permissions = [IsAuthenticated]
-        elif self.action == 'destroy':
-            permissions = [IsAuthenticated]
-        
-        return [permission() for permission in permissions]
+            # No authentication needed for 'create'
+            permission_classes = [AllowAny]
+        else:
+            # Authentication needed for all other actions
+            permission_classes = [IsAuthenticated]
 
+        return [permission() for permission in permission_classes]
 
 
     def create(self, request):
@@ -103,17 +99,18 @@ class UserViewSet(viewsets.ViewSet):
             serializer = UserSerializer(user, data={'is_active':'False'}, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                print("Hello")
                 return Response({'message':'User Deleted Succesfully.'})
             else:
                 return Response(serializer.errors)
         except User.DoesNotExist:
             raise NotFound({'error':"User doesn't exist."})
-        
-# @csrf_exempt
+
 class LoginView(APIView):
+    """
+    View to handle user login and JWT token generation.
+    Requires email and password for authentication.
+    """
     def post(self, request):
-        # print("Hello")
         email = request.data.get("email")
         password = request.data.get("password")
 
