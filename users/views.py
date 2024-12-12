@@ -61,7 +61,7 @@ class UserViewSet(viewsets.ViewSet):
         try:
             user = User.objects.get(id=pk)
         except User.DoesNotExist:
-            raise NotFound({'error':"User not found."})
+            s({'error':"User not found."})
         
         serializer = UserSerializer(user)
         return Response(serializer.data)
