@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'api',
     'users',
-    'transactions'
+    'transactions',
+    'wallets'
 ]
 
 
