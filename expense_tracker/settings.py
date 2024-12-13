@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'api',
     'users',
     'transactions',
+    'categories',
     'wallets'
 ]
 
