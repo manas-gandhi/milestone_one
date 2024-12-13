@@ -7,23 +7,6 @@ from django.db.models import Q
 from .models import Category
 from .serializers import CategorySerializer
 # Create your views here.
-
-class IsAdminOrOwnCategory(BasePermission):
-    """
-    Custom permission to only allow admins to access any category,
-    and normal users to access only their own categories.
-    """
-    
-    def has_object_permission(self, request, view, obj):
-        # Admin users have permission for accessing and modifying all categories
-        if request.user.is_staff or request.user.is_superuser:
-            return True
-        
-        # Regular users can only modify their own categories but access buth their own and global categories
-        if obj.user_id == request.user or obj.user_id is None:
-            return True
-        
-        return False
     
 def get_category(self, pk):
     try:
@@ -33,8 +16,7 @@ def get_category(self, pk):
 
 class CategoryViewSet(viewsets.ViewSet):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsAdminOrOwnCategory]
-
+    permission_classes = [IsAuthenticated]
 
     def list(self, request):
         user = request.user
@@ -58,13 +40,13 @@ class CategoryViewSet(viewsets.ViewSet):
 
         # Admins can set any user_id for a category
         if user.is_staff or user.is_superuser:
-            if 'user_id' in data:
+            if 'user' in data:
                 pass
             else:
-                data['user_id'] = None
+                data['user'] = None
         else:
             # Normal users can only create categories for themselves
-            data['user_id'] = user.id
+            data['user'] = user.id
         serializer = CategorySerializer(data=data)
         if serializer.is_valid():
             serializer.save()
@@ -128,7 +110,3 @@ class CategoryViewSet(viewsets.ViewSet):
             return Response({"message": "Category deleted"})
         else:
             return Response({"error": "You can only delete your own categories."})
-        
-
-
-
