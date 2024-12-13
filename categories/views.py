@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAuthenticated, BasePermission
+from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from .models import Category
 from .serializers import CategorySerializer
@@ -47,6 +47,7 @@ class CategoryViewSet(viewsets.ViewSet):
         else:
             # Normal users can only create categories for themselves
             data['user'] = user.id
+            
         serializer = CategorySerializer(data=data)
         if serializer.is_valid():
             serializer.save()
